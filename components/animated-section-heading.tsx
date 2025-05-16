@@ -26,7 +26,7 @@ export const AnimatedSectionHeading = ({
 
   return (
     <div className={`mb-12 ${alignmentClasses[alignment]} ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 overflow-hidden">
+      <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 overflow-hidden">
         {words.map((word, i) => (
           <motion.span
             key={i}
@@ -47,7 +47,7 @@ export const AnimatedSectionHeading = ({
 
       {subtitle && (
         <motion.p
-          className="text-lg text-slate-600 max-w-2xl mx-auto"
+          className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{

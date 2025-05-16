@@ -105,13 +105,13 @@ export function EnhancedHero() {
             </motion.span>
           </motion.h1>
           <motion.p
-            className="max-w-xl mx-auto text-lg text-slate-600 dark:text-slate-400"
+            className="max-w-xl mx-auto text-lg text-slate-600 dark:text-slate-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             FusionPay uses AI to find the fastest, cheapest route for your international payments.
-            Send money globally in <span className="font-semibold text-blue-600 dark:text-blue-400">minutes</span>, not days.
+            Send money globally in <span className="font-semibold text-blue-600 dark:text-blue-300">minutes</span>, not days.
           </motion.p>
         </div>
         
@@ -147,7 +147,7 @@ export function EnhancedHero() {
           </motion.a>
           <motion.a
             href="#"
-            className="px-6 py-3 text-base font-medium text-blue-600 bg-white rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-slate-800 dark:text-blue-400 dark:border-slate-700 dark:hover:bg-slate-700"
+            className="px-6 py-3 text-base font-medium text-blue-600 bg-white rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-slate-800 dark:text-blue-300 dark:border-slate-700 dark:hover:bg-slate-700"
             whileHover={{ scale: 1.03 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >

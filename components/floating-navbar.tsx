@@ -67,10 +67,10 @@ export function FloatingNavbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
+                className={`text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-300 ${
                   scrolled 
-                    ? "text-slate-800 dark:text-slate-200" 
-                    : "text-slate-700 dark:text-slate-300"
+                    ? "text-slate-800 dark:text-white" 
+                    : "text-slate-700 dark:text-slate-100"
                 }`}
               >
                 {link.name}

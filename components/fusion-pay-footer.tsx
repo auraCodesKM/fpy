@@ -38,10 +38,10 @@ export function FusionPayFooter({ darkMode = false }) {
               <span className="text-blue-500 mr-2">Fusion</span>
               <span>Pay</span>
             </h2>
-            <p className={`mb-4 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+            <p className={`mb-4 ${darkMode ? "text-slate-300" : "text-slate-600"}`}>
               A decentralized, AI-powered payment app enabling seamless cross-border fiat payments using stablecoins via Base L2.
             </p>
-            <div className={`text-sm ${darkMode ? "text-slate-500" : "text-slate-500"} border-t ${darkMode ? "border-slate-800" : "border-slate-200"} pt-4 mt-4`}>
+            <div className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"} border-t ${darkMode ? "border-slate-800" : "border-slate-200"} pt-4 mt-4`}>
               FusionPay is a demo product built for educational purposes. No real money or crypto is transacted.
             </div>
           </div>
@@ -49,7 +49,7 @@ export function FusionPayFooter({ darkMode = false }) {
           {/* Links */}
           <div>
             <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className={`space-y-2 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+            <ul className={`space-y-2 ${darkMode ? "text-slate-300" : "text-slate-600"}`}>
               <li>
                 <a href="https://github.com" className="hover:underline flex items-center">
                   <Github className="w-4 h-4 mr-2" /> GitHub
