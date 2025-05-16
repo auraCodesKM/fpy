@@ -2,15 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { ThemeToggle } from "./theme-toggle"
 import { 
   Github, 
   Twitter, 
   FileText, 
   Globe, 
   ChevronDown, 
-  Moon, 
-  Sun
+  ExternalLink
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -116,13 +114,39 @@ export function FusionPayFooter({ darkMode = false }) {
                 </DropdownMenu>
               </div>
               
-              {/* Theme Toggle */}
+              {/* Social Links */}
               <div>
                 <label className={`block text-sm mb-2 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
-                  Theme
+                  Follow Us
                 </label>
-                <div className="flex">
-                  <ThemeToggle />
+                <div className="flex space-x-3">
+                  <motion.a 
+                    href="https://twitter.com" 
+                    className={`p-2 rounded-full ${darkMode ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-100 hover:bg-slate-200"}`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <Twitter className="w-4 h-4" />
+                  </motion.a>
+                  <motion.a 
+                    href="https://github.com" 
+                    className={`p-2 rounded-full ${darkMode ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-100 hover:bg-slate-200"}`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <Github className="w-4 h-4" />
+                  </motion.a>
+                  <motion.a 
+                    href="#" 
+                    className={`p-2 rounded-full ${darkMode ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-100 hover:bg-slate-200"}`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </motion.a>
                 </div>
               </div>
             </div>
