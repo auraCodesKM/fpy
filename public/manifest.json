@@ -1,0 +1,17 @@
+{
+  "name": "FusionPay - Global Payments Reimagined",
+  "short_name": "FusionPay",
+  "description": "Send money across borders. No banks. Just stablecoins.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/fusionpay-logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
