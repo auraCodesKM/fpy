@@ -3,15 +3,15 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: [
-      'images.unsplash.com',
-      'plus.unsplash.com',
-      'avatars.githubusercontent.com',
-      'github.com',
-      'lh3.googleusercontent.com',
-      'raw.githubusercontent.com',
-      'api.mapbox.com',
-      'mapbox.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'plus.unsplash.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'github.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'raw.githubusercontent.com' },
+      { protocol: 'https', hostname: 'api.mapbox.com' },
+      { protocol: 'https', hostname: 'mapbox.com' },
     ],
   },
   env: {

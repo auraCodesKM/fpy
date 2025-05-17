@@ -7,6 +7,10 @@ import { AnimatedSectionHeading } from "@/components/animated-section-heading"
 import { FloatingNavbar } from "@/components/floating-navbar"
 import { motion } from "framer-motion"
 import { MediaEnhancedHero } from "@/components/media-enhanced-hero"
+import { EnhancedImageSection } from "@/components/enhanced-image-section"
+import { ParticleAnimation } from "@/components/particle-animation"
+import { FloatingElements } from "@/components/floating-elements"
+import { TiltCard } from "@/components/tilt-card"
 
 // Import our custom FusionPay components
 import { FusionPaySteps } from "@/components/fusion-pay-steps"
@@ -32,10 +36,15 @@ export default function Home() {
       <FloatingNavbar />
 
       {/* Media Enhanced Hero Section */}
-      <MediaEnhancedHero />
+      <div className="relative">
+        <ParticleAnimation count={40} opacity={0.2} />
+        <MediaEnhancedHero />
+      </div>
 
       {/* How It Works - Scroll-Revealed Steps */}
-      <section className="py-20 bg-white dark:bg-slate-900 px-4" id="how-it-works">
+      <section className="py-20 bg-white dark:bg-slate-900 px-4 relative overflow-hidden" id="how-it-works">
+        <EnhancedImageSection imageStyle="Glossy" opacity={0.1} />
+        <FloatingElements count={6} opacity={0.15} />
         <div className="container mx-auto max-w-6xl">
           <AnimatedSectionHeading
             title="How It Works"
@@ -64,24 +73,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why FusionPay - Animated Feature Stats */}
-      <section className="py-20 bg-white dark:bg-slate-900 px-4" id="benefits">
+      {/* Why FusionPay - Features Section with Hover Effects */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-800 px-4 relative overflow-hidden" id="features">
+        <EnhancedImageSection imageStyle="Metallic" opacity={0.08} />
         <div className="container mx-auto max-w-6xl">
           <AnimatedSectionHeading
             title="Why FusionPay"
             subtitle="Our platform offers significant advantages over traditional banking and payment systems."
           />
-          <FusionPayFeatures darkMode={isDarkMode} />
+          <TiltCard className="bg-transparent">
+            <FusionPayFeatures darkMode={isDarkMode} />
+          </TiltCard>
         </div>
       </section>
 
       {/* Enhanced Visualizations */}
-      <section id="visualizations">
+      <section id="visualizations" className="relative">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <EnhancedImageSection imageStyle="Vivid" opacity={0.08} />
+        </div>
         <EnhancedVisualizations />
       </section>
 
       {/* Use Cases - Scroll Cards */}
-      <section className="py-20 px-4 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800" id="use-cases">
+      <section className="py-20 px-4 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 relative overflow-hidden" id="use-cases">
+        <EnhancedImageSection imageStyle="Neon" opacity={0.07} />
         <div className="container mx-auto max-w-6xl">
           <AnimatedSectionHeading 
             title="Use Cases" 
