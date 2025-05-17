@@ -6,6 +6,8 @@ import { useInView } from "framer-motion"
 import { FusionPayLogo } from "./fusion-pay-logo"
 import { EnhancedCurrencyFlow } from "./enhanced-currency-flow"
 import { useTheme } from "next-themes"
+import { DirectLinkButton } from "./direct-link-button"
+import { useAuth } from "@/lib/auth-context"
 
 export function MediaEnhancedHero() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -14,6 +16,7 @@ export function MediaEnhancedHero() {
   const [pulseActive, setPulseActive] = useState(false)
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { user } = useAuth()
   
   // Avoid hydration mismatch
   useEffect(() => {
@@ -184,6 +187,22 @@ export function MediaEnhancedHero() {
           >
             Send money globally in seconds, not days. FusionPay leverages blockchain technology to make international transfers instant, secure, and up to 80% cheaper.
           </motion.p>
+          
+          {/* Get Started Button */}
+          <motion.div
+            className="mt-10 mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <DirectLinkButton 
+              href="/auth"
+              size="large"
+              variant="gradient"
+            >
+              Get Started
+            </DirectLinkButton>
+          </motion.div>
         </div>
         
         {/* Enhanced currency flow visualization */}

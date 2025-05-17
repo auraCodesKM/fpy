@@ -6,6 +6,7 @@ import Link from "next/link"
 import { FusionPayLogo } from "./fusion-pay-logo"
 import { useTheme } from "next-themes"
 import { Moon, Sun } from "lucide-react"
+import { DirectLinkButton } from "./direct-link-button"
 
 export function FloatingNavbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -80,13 +81,24 @@ export function FloatingNavbar() {
           </nav>
 
           {/* Right side buttons */}
-          <div className="flex items-center space-x-4">
-            {/* Theme toggle with enhanced animations */}
+          <div className="flex items-center space-x-2">
+            {/* Get Started Button */}
+            <div className="mr-1">
+              <DirectLinkButton
+                href="/auth"
+                size="small"
+                variant="gradient"
+              >
+                Get Started
+              </DirectLinkButton>
+            </div>
+
+            {/* Theme toggle button */}
             <motion.button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors relative overflow-hidden ${
-                scrolled 
-                  ? "bg-slate-200 dark:bg-slate-800" 
+              onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+              className={`relative p-2 rounded-full flex items-center justify-center ${
+                scrolled
+                  ? "bg-white/80 dark:bg-slate-800/80 shadow-sm"
                   : "bg-white/20 dark:bg-slate-800/20 backdrop-blur-sm"
               }`}
               aria-label="Toggle theme"
@@ -112,61 +124,6 @@ export function FloatingNavbar() {
                 transition={{ duration: 0.5 }}
               />
             </motion.button>
-
-            {/* CTA Button with enhanced animations */}
-            <motion.div
-              className="hidden sm:block"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              <Link
-                href="#"
-                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors overflow-hidden ${
-                  scrolled
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-blue-600/90 text-white backdrop-blur-sm hover:bg-blue-700/90"
-                }`}
-              >
-                <span className="relative z-10">Sign In</span>
-                <motion.span 
-                  className="absolute inset-0 bg-blue-400/30"
-                  initial={{ scale: 0, opacity: 0 }}
-                  whileHover={{ scale: 1.5, opacity: 0.4 }}
-                  transition={{ duration: 0.5 }}
-                />
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              className="relative"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              <Link
-                href="#"
-                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors overflow-hidden ${
-                  scrolled
-                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600"
-                    : "bg-gradient-to-r from-blue-600/90 to-blue-500/90 text-white backdrop-blur-sm hover:from-blue-700/90 hover:to-blue-600/90"
-                }`}
-              >
-                <span className="relative z-10">Get Started</span>
-                <motion.span 
-                  className="absolute inset-0 bg-gradient-to-r from-blue-400/30 to-cyan-400/30"
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    opacity: [0.1, 0.3, 0.1]
-                  }}
-                  transition={{ 
-                    duration: 2.5, 
-                    repeat: Infinity,
-                    ease: "easeInOut" 
-                  }}
-                />
-              </Link>
-            </motion.div>
 
             {/* Mobile menu button */}
             <button

@@ -59,10 +59,13 @@ export function FusionPayLogo({ darkMode = false, size = "large" }: { darkMode?:
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="relative flex flex-col items-center">
-        {/* Outer orbit */}
+        {/* Outer orbit - shifted higher */}
         <motion.div
           className={`absolute rounded-full border-dashed ${sizeConfig.outerOrbitSize} ${sizeConfig.orbitWidth}`}
-          style={{ borderColor: outerOrbitColor }}
+          style={{ 
+            borderColor: outerOrbitColor,
+            transform: "translateY(-20px)" 
+          }}
           initial={{ opacity: 0, scale: 0.8, rotate: 0 }}
           animate={{ 
             opacity: isVisible ? 1 : 0, 
