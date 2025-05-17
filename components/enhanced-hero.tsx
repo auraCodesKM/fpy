@@ -31,7 +31,7 @@ export function EnhancedHero() {
   }, [])
 
   return (
-    <section className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 pt-24">
+    <section className="relative flex flex-col items-center justify-center min-h-[90vh] overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 pt-16">
       {/* Enhanced futuristic background with grid and particle effects */}
       <div className="absolute inset-0 z-0">
         {/* Modern grid pattern with subtle glow */}
@@ -184,7 +184,12 @@ export function EnhancedHero() {
                 ease: "easeInOut"
               }}
             />
-            <FusionPayLogo darkMode={false} size="large" />
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
+              transition={{ rotate: { duration: 0.5, ease: "easeInOut" } }}
+            >
+              <FusionPayLogo darkMode={false} size="large" />
+            </motion.div>
           </div>
         </motion.div>
         
@@ -195,6 +200,13 @@ export function EnhancedHero() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 40 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            whileInView={{ 
+              textShadow: [
+                "0 0 5px rgba(59, 130, 246, 0.0)", 
+                "0 0 15px rgba(59, 130, 246, 0.2)", 
+                "0 0 5px rgba(59, 130, 246, 0.0)"
+              ]
+            }}
           >
             <motion.span 
               className="block relative inline-block bg-clip-text text-transparent bg-gradient-to-r from-slate-800 via-slate-900 to-slate-700 dark:from-white dark:via-slate-200 dark:to-slate-300"
@@ -350,12 +362,33 @@ export function EnhancedHero() {
                 />
               </>
             )}
-            <span className="relative z-10 flex items-center">
-              <span className="mr-2">Get Started</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <motion.span 
+              className="relative z-10 flex items-center"
+              animate={{ x: [0, 3, 0] }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                repeatDelay: 1 
+              }}
+            >
+              <span className="mr-2 font-medium">Get Started</span>
+              <motion.svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  repeatDelay: 1.5 
+                }}
+              >
                 <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </span>
+              </motion.svg>
+            </motion.span>
           </motion.a>
           <motion.a
             href="#"
@@ -372,12 +405,33 @@ export function EnhancedHero() {
               damping: 15 
             }}
           >
-            <span className="relative z-10 flex items-center">
-              <span className="mr-2">How It Works</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <motion.span 
+              className="relative z-10 flex items-center"
+              animate={{ y: [0, -2, 0] }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                repeatDelay: 1 
+              }}
+            >
+              <span className="mr-2 font-medium">How It Works</span>
+              <motion.svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+                animate={{ rotate: [0, 15, 0, -15, 0] }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  repeatDelay: 2 
+                }}
+              >
                 <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
-              </svg>
-            </span>
+              </motion.svg>
+            </motion.span>
           </motion.a>
         </motion.div>
         

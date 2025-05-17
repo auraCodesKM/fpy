@@ -41,6 +41,7 @@ export function FloatingNavbar() {
     { name: "How It Works", href: "#how-it-works" },
     { name: "Demo", href: "#demo" },
     { name: "Benefits", href: "#benefits" },
+    { name: "Visualizations", href: "#visualizations" },
     { name: "Use Cases", href: "#use-cases" },
   ]
 

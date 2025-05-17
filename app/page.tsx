@@ -14,6 +14,7 @@ import { FusionPaySimulator } from "@/components/fusion-pay-simulator"
 import { FusionPayFeatures } from "@/components/fusion-pay-features"
 import { FusionPayUseCases } from "@/components/fusion-pay-use-cases"
 import { FusionPayFooter } from "@/components/fusion-pay-footer"
+import { EnhancedVisualizations } from "@/components/enhanced-visualizations"
 
 export default function Home() {
   const { theme } = useTheme()
@@ -72,6 +73,11 @@ export default function Home() {
           />
           <FusionPayFeatures darkMode={isDarkMode} />
         </div>
+      </section>
+
+      {/* Enhanced Visualizations */}
+      <section id="visualizations">
+        <EnhancedVisualizations />
       </section>
 
       {/* Use Cases - Scroll Cards */}
