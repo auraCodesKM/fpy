@@ -98,29 +98,102 @@ export const EnhancedCurrencyFlow = () => {
 
       {/* Main flow container */}
       <div className="relative w-full max-w-2xl mx-auto px-4">
-        {/* Path line */}
+        {/* Enhanced Path line with animated particles */}
         <svg
-          className="absolute top-1/2 left-0 w-full h-4 -translate-y-1/2"
-          viewBox="0 0 100 4"
+          className="absolute top-1/2 left-0 w-full h-8 -translate-y-1/2"
+          viewBox="0 0 100 8"
           preserveAspectRatio="none"
         >
+          {/* Base path */}
           <motion.path
-            d="M0,2 C20,0 30,4 50,2 C70,0 80,4 100,2"
+            d="M0,4 C20,1 30,7 50,4 C70,1 80,7 100,4"
             fill="none"
             stroke="#e2e8f0"
             strokeWidth="2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
+            strokeDasharray="1 2"
+            initial={{ pathLength: 0, opacity: 0.3 }}
+            animate={{ pathLength: 1, opacity: 0.6 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
           />
+          
+          {/* Animated gradient path */}
           <motion.path
-            d="M0,2 C20,0 30,4 50,2 C70,0 80,4 100,2"
+            d="M0,4 C20,1 30,7 50,4 C70,1 80,7 100,4"
             fill="none"
             stroke="url(#gradient-line)"
-            strokeWidth="2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: isInView ? 1 : 0 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
+            strokeWidth="3"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, strokeDashoffset: 0 }}
+            animate={{ 
+              pathLength: isInView ? 1 : 0,
+              strokeDashoffset: isInView ? [0, -20, -40, -60, -80, -100] : 0
+            }}
+            transition={{ 
+              pathLength: { duration: 2, ease: "easeInOut" },
+              strokeDashoffset: { 
+                duration: 5, 
+                ease: "linear", 
+                repeat: Infinity,
+                repeatType: "loop" 
+              }
+            }}
+            strokeDasharray="4 4"
+          />
+          
+          {/* Animated flowing particles */}
+          <motion.circle 
+            cx="0" 
+            cy="4" 
+            r="1.5" 
+            fill="#3b82f6"
+            animate={{
+              cx: [0, 100],
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1, 1, 0.5]
+            }}
+            transition={{
+              duration: 4,
+              ease: "easeInOut",
+              times: [0, 0.1, 0.9, 1],
+              repeat: Infinity,
+              delay: 0.5
+            }}
+          />
+          <motion.circle 
+            cx="0" 
+            cy="4" 
+            r="1.5" 
+            fill="#0ea5e9"
+            animate={{
+              cx: [0, 100],
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1, 1, 0.5]
+            }}
+            transition={{
+              duration: 4,
+              ease: "easeInOut",
+              times: [0, 0.1, 0.9, 1],
+              repeat: Infinity,
+              delay: 2
+            }}
+          />
+          <motion.circle 
+            cx="0" 
+            cy="4" 
+            r="1.5" 
+            fill="#0d9488"
+            animate={{
+              cx: [0, 100],
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1, 1, 0.5]
+            }}
+            transition={{
+              duration: 4,
+              ease: "easeInOut",
+              times: [0, 0.1, 0.9, 1],
+              repeat: Infinity,
+              delay: 3.5
+            }}
           />
           <defs>
             <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
