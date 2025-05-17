@@ -183,6 +183,8 @@ export function EnhancedVisualizations() {
   
   if (!mounted) return null
   
+
+
   return (
     <section ref={sectionRef} className="py-20 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4">
@@ -767,6 +769,7 @@ export function EnhancedVisualizations() {
                       <p className="text-slate-600 dark:text-slate-400">FusionPay saves you money on international transfers</p>
                     </div>
                   </div>
+
                   <div className="bg-white dark:bg-slate-800 px-6 py-3 rounded-lg shadow-md">
                     <div className="text-center">
                       <p className="text-sm text-slate-600 dark:text-slate-400">Average Savings</p>

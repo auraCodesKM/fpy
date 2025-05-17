@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import { ArrowRight } from "lucide-react"
 import { AnimatedButton } from "@/components/animated-button"
 import { AnimatedSectionHeading } from "@/components/animated-section-heading"
-import { EnhancedHero } from "@/components/enhanced-hero"
 import { FloatingNavbar } from "@/components/floating-navbar"
 import { motion } from "framer-motion"
+import { MediaEnhancedHero } from "@/components/media-enhanced-hero"
 
 // Import our custom FusionPay components
 import { FusionPaySteps } from "@/components/fusion-pay-steps"
@@ -31,8 +31,8 @@ export default function Home() {
     <main className="min-h-screen bg-white dark:bg-slate-900">
       <FloatingNavbar />
 
-      {/* Enhanced Hero Section with Pulse Animations */}
-      <EnhancedHero />
+      {/* Media Enhanced Hero Section */}
+      <MediaEnhancedHero />
 
       {/* How It Works - Scroll-Revealed Steps */}
       <section className="py-20 bg-white dark:bg-slate-900 px-4" id="how-it-works">
