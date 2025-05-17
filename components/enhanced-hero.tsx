@@ -5,11 +5,21 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useInView } from "framer-motion"
 import { FusionPayLogo } from "./fusion-pay-logo"
 import { EnhancedCurrencyFlow } from "./enhanced-currency-flow"
+import { useTheme } from "next-themes"
 
 export function EnhancedHero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(containerRef, { once: false, amount: 0.3 })
   const [pulseActive, setPulseActive] = useState(false)
+  const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  const isDarkMode = mounted && theme === "dark"
   
   // Start the pulse animation after the component mounts
   useEffect(() => {
@@ -87,12 +97,18 @@ export function EnhancedHero() {
               transition={{ duration: 0.7 }}
             >
               Send Money Across Borders.
-              {/* Animated underline */}
+              {/* Enhanced animated underline with gradient pulse */}
               <motion.span 
-                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: pulseActive ? "100%" : 0 }}
-                transition={{ duration: 1.2, delay: 1 }}
+                className="absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full"
+                initial={{ width: 0, opacity: 0.7 }}
+                animate={{
+                  width: pulseActive ? "100%" : 0,
+                  opacity: pulseActive ? [0.7, 1, 0.7] : 0.7
+                }}
+                transition={{
+                  width: { duration: 1.2, delay: 1 },
+                  opacity: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+                }}
               />
             </motion.span>
             <motion.span 
@@ -155,48 +171,80 @@ export function EnhancedHero() {
           </motion.a>
         </motion.div>
         
-        {/* Enhanced Currency flow visualization with glass morphism */}
+        {/* Enhanced Currency Flow Visualization with improved animations */}
         <motion.div
-          className="w-full max-w-3xl mx-auto relative"
+          className="w-full max-w-4xl mx-auto relative"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
-          transition={{ duration: 0.5, delay: 1 }}
+          transition={{ duration: 0.7, delay: 1 }}
         >
           {/* Glass morphism card effect */}
           <div className="absolute inset-0 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md rounded-xl z-0 border border-white/20 dark:border-slate-700/30 shadow-xl"></div>
           
-          {/* Animated glow effects */}
+          {/* Enhanced animated glow effects */}
           {pulseActive && (
             <>
               <motion.div 
-                className="absolute -top-5 -left-5 w-20 h-20 bg-blue-500/30 rounded-full blur-xl z-0"
+                className="absolute -top-8 -left-8 w-32 h-32 bg-blue-500/30 rounded-full blur-xl z-0"
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.6, 0.3]
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                  x: [0, -10, 0],
+                  y: [0, -10, 0]
                 }}
                 transition={{ 
-                  duration: 4, 
+                  duration: 5, 
                   repeat: Infinity,
                   ease: "easeInOut" 
                 }}
               />
               <motion.div 
-                className="absolute -bottom-5 -right-5 w-20 h-20 bg-cyan-500/30 rounded-full blur-xl z-0"
+                className="absolute -bottom-8 -right-8 w-32 h-32 bg-cyan-500/30 rounded-full blur-xl z-0"
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.6, 0.3]
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                  x: [0, 10, 0],
+                  y: [0, 10, 0]
                 }}
                 transition={{ 
-                  duration: 4, 
+                  duration: 5, 
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay: 2
                 }}
               />
+              <motion.div 
+                className="absolute top-1/2 -right-6 w-24 h-24 bg-purple-500/20 rounded-full blur-xl z-0"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.2, 0.5, 0.2],
+                  y: [0, -15, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1
+                }}
+              />
+              <motion.div 
+                className="absolute top-1/2 -left-6 w-24 h-24 bg-blue-400/20 rounded-full blur-xl z-0"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.2, 0.5, 0.2],
+                  y: [0, 15, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 3
+                }}
+              />
             </>
           )}
           
-          <div className="relative z-10">
+          <div className="relative z-10 p-2">
             <EnhancedCurrencyFlow />
           </div>
         </motion.div>

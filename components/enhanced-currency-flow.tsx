@@ -30,7 +30,7 @@ export const EnhancedCurrencyFlow = () => {
   const [isAnimating, setIsAnimating] = useState(false)
   const [showTooltip, setShowTooltip] = useState<string | null>(null)
 
-  // Change route every 5 seconds
+  // Change route every 6 seconds with more time for animations
   useEffect(() => {
     if (!isInView) return
 
@@ -42,9 +42,9 @@ export const EnhancedCurrencyFlow = () => {
         // Reset animation state after animation completes
         setTimeout(() => {
           setIsAnimating(false)
-        }, 4000) // Slightly less than the interval to ensure animations complete
+        }, 5000) // Slightly less than the interval to ensure animations complete
       }
-    }, 5000)
+    }, 6000)
 
     return () => clearInterval(interval)
   }, [isInView, isAnimating])
@@ -123,7 +123,7 @@ export const EnhancedCurrencyFlow = () => {
             transition={{ duration: 2, ease: "easeInOut" }}
           />
           <defs>
-            <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y1="0%" y2="0%">
+            <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#3b82f6" />
               <stop offset="50%" stopColor="#2563eb" />
               <stop offset="100%" stopColor="#0d9488" />
@@ -149,34 +149,75 @@ export const EnhancedCurrencyFlow = () => {
                 onMouseLeave={() => setShowTooltip(null)}
               >
                 <motion.div
-                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative"
+                  className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg relative"
                   style={{ backgroundColor: currency.color }}
-                  whileHover={{ scale: 1.1, boxShadow: "0 0 15px rgba(59, 130, 246, 0.5)" }}
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  whileHover={{ scale: 1.15, boxShadow: "0 0 20px rgba(59, 130, 246, 0.6)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  animate={{
+                    y: [0, -5, 0],
+                    transition: {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: index * 0.2
+                    }
+                  }}
                 >
-                  <span className="text-white font-bold text-lg">{currency.symbol}</span>
+                  <span className="text-white font-bold text-xl">{currency.symbol}</span>
 
-                  {/* Pulsing effect */}
+                  {/* Enhanced pulsing effect with multiple layers */}
                   <motion.div
                     className="absolute inset-0 rounded-full"
                     style={{ backgroundColor: currency.color }}
                     initial={{ opacity: 0.7, scale: 1 }}
-                    animate={{ opacity: 0, scale: 1.5 }}
-                    transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, repeatDelay: 1 }}
+                    animate={{ opacity: 0, scale: 1.6 }}
+                    transition={{ 
+                      duration: 2.5, 
+                      repeat: Number.POSITIVE_INFINITY, 
+                      repeatDelay: 0.5,
+                      ease: "easeOut"
+                    }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full"
+                    style={{ backgroundColor: currency.color }}
+                    initial={{ opacity: 0.5, scale: 1 }}
+                    animate={{ opacity: 0, scale: 1.4 }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Number.POSITIVE_INFINITY, 
+                      repeatDelay: 0.8,
+                      delay: 0.3,
+                      ease: "easeOut"
+                    }}
                   />
                 </motion.div>
 
-                <span className="text-xs font-medium text-slate-700 mt-2">{currencyCode}</span>
+                <motion.span 
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.2 + 0.5, duration: 0.5 }}
+                >
+                  {currencyCode}
+                </motion.span>
 
-                {/* Tooltip */}
+                {/* Enhanced Tooltip */}
                 {showTooltip === currencyCode && (
                   <motion.div
-                    className="absolute -bottom-10 bg-white px-3 py-1 rounded-md shadow-md border border-slate-200 whitespace-nowrap z-20"
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
+                    className="absolute -bottom-12 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 whitespace-nowrap z-20"
+                    initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   >
-                    <span className="text-xs text-slate-700">{getTooltipText(currencyCode)}</span>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{getTooltipText(currencyCode)}</span>
+                    <motion.div 
+                      className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-800 border-t border-l border-slate-200 dark:border-slate-700 rotate-45"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    />
                   </motion.div>
                 )}
               </motion.div>
