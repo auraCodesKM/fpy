@@ -3,16 +3,19 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useInView } from "framer-motion"
 import { useTheme } from "next-themes"
-import { ArrowRight, Clock, CheckCircle, DollarSign, Building, Globe, Wallet, Zap, PieChart, BarChart4, CreditCard, Percent } from "lucide-react"
+import { ArrowRight, Clock, CheckCircle, DollarSign, Building, Globe, Wallet, Zap, PieChart, BarChart4, CreditCard, Percent, Sliders } from "lucide-react"
+import { GlobalTransactionMap } from "./global-transaction-map"
+import { CurrencyConversionSimulator } from "./currency-conversion-simulator"
 import { AnimatedSectionHeading } from "./animated-section-heading"
 
 export function EnhancedVisualizations() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'fees' | 'speed' | 'journey' | 'blockchain'>('fees')
+  const [activeTab, setActiveTab] = useState<'fees' | 'speed' | 'journey' | 'blockchain' | 'map' | 'currency'>('fees')
   const [isAnimating, setIsAnimating] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [hoverInfo, setHoverInfo] = useState<{title: string, content: string} | null>(null)
+  const [transferAmount, setTransferAmount] = useState(1000)
   
   // Refs for scroll animations
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -76,7 +79,7 @@ export function EnhancedVisualizations() {
   useEffect(() => {
     if (!mounted || !isInView) return
     
-    const tabOrder: Array<'fees' | 'speed' | 'journey' | 'blockchain'> = ['fees', 'speed', 'journey', 'blockchain']
+    const tabOrder: Array<'fees' | 'speed' | 'journey' | 'blockchain' | 'map' | 'currency'> = ['fees', 'speed', 'journey', 'blockchain', 'map', 'currency']
     
     const interval = setInterval(() => {
       const currentIndex = tabOrder.indexOf(activeTab)
@@ -89,19 +92,26 @@ export function EnhancedVisualizations() {
   
   const isDarkMode = mounted && theme === "dark"
   
-  // Traditional bank transfer fees (percentage)
-  const traditionalFeePercentage = 4.5
-  const traditionalFeeAmount = 1000 * (traditionalFeePercentage / 100)
-  const traditionalFinalAmount = 1000 - traditionalFeeAmount
+  // Traditional bank transfer fees breakdown
+  const traditionalBaseFeePercentage = 1.5
+  const traditionalFxMarkupPercentage = 2.0
+  const traditionalWireFeePercentage = 1.0
+  const traditionalTotalFeePercentage = traditionalBaseFeePercentage + traditionalFxMarkupPercentage + traditionalWireFeePercentage
+  
+  const traditionalBaseFeeAmount = transferAmount * (traditionalBaseFeePercentage / 100)
+  const traditionalFxMarkupAmount = transferAmount * (traditionalFxMarkupPercentage / 100)
+  const traditionalWireFeeAmount = transferAmount * (traditionalWireFeePercentage / 100)
+  const traditionalTotalFeeAmount = traditionalBaseFeeAmount + traditionalFxMarkupAmount + traditionalWireFeeAmount
+  const traditionalFinalAmount = transferAmount - traditionalTotalFeeAmount
   
   // FusionPay fees (percentage)
   const fusionPayFeePercentage = 0.8
-  const fusionPayFeeAmount = 1000 * (fusionPayFeePercentage / 100)
-  const fusionPayFinalAmount = 1000 - fusionPayFeeAmount
+  const fusionPayFeeAmount = transferAmount * (fusionPayFeePercentage / 100)
+  const fusionPayFinalAmount = transferAmount - fusionPayFeeAmount
   
   // Calculate savings
-  const savingsAmount = traditionalFeeAmount - fusionPayFeeAmount
-  const savingsPercentage = ((traditionalFeeAmount - fusionPayFeeAmount) / traditionalFeeAmount) * 100
+  const savingsAmount = traditionalTotalFeeAmount - fusionPayFeeAmount
+  const savingsPercentage = ((traditionalTotalFeeAmount - fusionPayFeeAmount) / traditionalTotalFeeAmount) * 100
   
   // Traditional bank transfer steps
   const traditionalSteps = [
@@ -185,7 +195,7 @@ export function EnhancedVisualizations() {
         
         {/* Tab navigation */}
         <div className="flex justify-center mb-8 overflow-x-auto pb-2">
-          <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 shadow-md">
+          <div className="inline-flex flex-wrap bg-slate-100 dark:bg-slate-800 rounded-lg p-1 shadow-md">
             <button
               className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center ${
                 activeTab === 'fees' 
@@ -230,6 +240,28 @@ export function EnhancedVisualizations() {
               <Globe className="mr-2 h-4 w-4" />
               Blockchain Tech
             </button>
+            <button
+              className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center ${
+                activeTab === 'map' 
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+              onClick={() => setActiveTab('map')}
+            >
+              <Globe className="mr-2 h-4 w-4" />
+              Global Map
+            </button>
+            <button
+              className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center ${
+                activeTab === 'currency' 
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+              onClick={() => setActiveTab('currency')}
+            >
+              <DollarSign className="mr-2 h-4 w-4" />
+              Currency Converter
+            </button>
           </div>
         </div>
         
@@ -264,18 +296,97 @@ export function EnhancedVisualizations() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
+              {/* Amount slider */}
+              <div className="md:col-span-2 mb-4 bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 transition-all hover:shadow-xl">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                  <h4 className="text-lg font-medium text-slate-900 dark:text-white flex items-center mb-2 md:mb-0">
+                    <Sliders className="mr-2 h-5 w-5 text-blue-500" />
+                    Transfer Amount
+                  </h4>
+                  <div className="flex items-center space-x-3">
+                    <button 
+                      onClick={() => setTransferAmount(Math.max(100, transferAmount - 500))}
+                      className="p-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/></svg>
+                    </button>
+                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400 min-w-[100px] text-center">
+                      ${transferAmount.toLocaleString()}
+                    </div>
+                    <button 
+                      onClick={() => setTransferAmount(Math.min(10000, transferAmount + 500))}
+                      className="p-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="relative pt-1">
+                  <input
+                    type="range"
+                    min="100"
+                    max="10000"
+                    step="100"
+                    value={transferAmount}
+                    onChange={(e) => setTransferAmount(parseInt(e.target.value))}
+                    className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(transferAmount - 100) / 9900 * 100}%, #e2e8f0 ${(transferAmount - 100) / 9900 * 100}%, #e2e8f0 100%)`,
+                    }}
+                  />
+                  <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
+                    <span>$100</span>
+                    <span>$2,500</span>
+                    <span>$5,000</span>
+                    <span>$7,500</span>
+                    <span>$10,000</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <p>Adjust the slider to see how fees scale with different transfer amounts</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => setTransferAmount(1000)}
+                      className="px-2 py-1 text-xs rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      $1,000
+                    </button>
+                    <button 
+                      onClick={() => setTransferAmount(5000)}
+                      className="px-2 py-1 text-xs rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      $5,000
+                    </button>
+                    <button 
+                      onClick={() => setTransferAmount(10000)}
+                      className="px-2 py-1 text-xs rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      $10,000
+                    </button>
+                  </div>
+                </div>
+              </div>
               {/* Traditional Bank Transfer */}
               <div className="space-y-4 bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 transition-all hover:shadow-xl">
-                <h4 className="text-lg font-medium text-slate-800 dark:text-slate-200 text-center flex items-center justify-center">
-                  <Building className="mr-2 h-5 w-5 text-red-500 dark:text-red-400" />
-                  Traditional Bank
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-medium text-slate-800 dark:text-slate-200 flex items-center">
+                    <Building className="mr-2 h-5 w-5 text-red-500 dark:text-red-400" />
+                    Traditional Bank
+                  </h4>
+                  <div className="flex items-center space-x-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full text-xs font-medium">
+                    <span>{traditionalTotalFeePercentage}% Fee</span>
+                  </div>
+                </div>
                 
                 <div 
-                  className="relative h-64 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden"
+                  className="relative h-72 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden shadow-inner"
                   onMouseEnter={() => setHoverInfo({
                     title: "Traditional Bank Fees",
-                    content: `Banks typically charge ${traditionalFeePercentage}% for international transfers, plus hidden exchange rate markups and correspondent bank fees.`
+                    content: `Banks typically charge ${traditionalTotalFeePercentage}% for international transfers, including base fees (${traditionalBaseFeePercentage}%), exchange rate markups (${traditionalFxMarkupPercentage}%), and wire fees (${traditionalWireFeePercentage}%).`
                   })}
                   onMouseLeave={() => setHoverInfo(null)}
                 >
@@ -283,7 +394,7 @@ export function EnhancedVisualizations() {
                   <div className="absolute inset-x-0 bottom-0 bg-slate-300 dark:bg-slate-600 h-full w-full">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-lg font-bold text-slate-500 dark:text-slate-400">
-                        $1000
+                        ${transferAmount.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -293,47 +404,61 @@ export function EnhancedVisualizations() {
                     className="absolute inset-x-0 bottom-0 bg-red-500 dark:bg-red-700"
                     initial={{ height: "0%" }}
                     animate={{ 
-                      height: isAnimating ? `${(traditionalFeePercentage / 100) * 100}%` : "0%" 
+                      height: isAnimating ? `${(traditionalTotalFeePercentage / 100) * 100}%` : "0%" 
                     }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                   >
-                    {/* Wire fee */}
+                    {/* Base fee */}
                     <motion.div 
-                      className="absolute inset-x-0 bottom-0 bg-red-600 dark:bg-red-800 border-t border-red-400 dark:border-red-600"
+                      className="absolute inset-x-0 bottom-0 bg-red-400 dark:bg-red-600 border-t border-red-300 dark:border-red-500"
                       initial={{ height: "0%" }}
                       animate={{ 
-                        height: isAnimating ? "30%" : "0%" 
+                        height: isAnimating ? `${(traditionalBaseFeePercentage / traditionalTotalFeePercentage) * 100}%` : "0%" 
                       }}
-                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
                     >
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-xs font-medium text-white">
-                          Wire Fee
+                          Base Fee: ${traditionalBaseFeeAmount.toFixed(2)}
                         </span>
                       </div>
                     </motion.div>
                     
                     {/* Exchange rate markup */}
                     <motion.div 
-                      className="absolute inset-x-0 bottom-0 bg-red-700 dark:bg-red-900 border-t border-red-500 dark:border-red-700"
+                      className="absolute inset-x-0 bottom-0 bg-red-600 dark:bg-red-800 border-t border-red-400 dark:border-red-600"
                       initial={{ height: "0%" }}
                       animate={{ 
-                        height: isAnimating ? "15%" : "0%" 
+                        height: isAnimating ? `${(traditionalFxMarkupPercentage / traditionalTotalFeePercentage) * 100}%` : "0%" 
                       }}
-                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
                     >
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-xs font-medium text-white">
-                          FX Markup
+                          FX Markup: ${traditionalFxMarkupAmount.toFixed(2)}
                         </span>
                       </div>
                     </motion.div>
                     
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-medium text-white">
-                        Total Fee: ${traditionalFeeAmount}
-                        <br />
-                        ({traditionalFeePercentage}%)
+                    {/* Wire fee */}
+                    <motion.div 
+                      className="absolute inset-x-0 bottom-0 bg-red-700 dark:bg-red-900 border-t border-red-500 dark:border-red-700"
+                      initial={{ height: "0%" }}
+                      animate={{ 
+                        height: isAnimating ? `${(traditionalWireFeePercentage / traditionalTotalFeePercentage) * 100}%` : "0%" 
+                      }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-medium text-white">
+                          Wire Fee: ${traditionalWireFeeAmount.toFixed(2)}
+                        </span>
+                      </div>
+                    </motion.div>
+                    
+                    <div className="absolute top-2 left-0 right-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-white bg-red-800 dark:bg-red-900 px-3 py-1 rounded-full">
+                        Total Fee: ${traditionalTotalFeeAmount.toFixed(2)}
                       </span>
                     </div>
                   </motion.div>
@@ -343,13 +468,13 @@ export function EnhancedVisualizations() {
                     className="absolute inset-x-0 bottom-0 border-t-2 border-dashed border-slate-500 dark:border-slate-300 pointer-events-none"
                     initial={{ bottom: "0%" }}
                     animate={{ 
-                      bottom: isAnimating ? `${(traditionalFeePercentage / 100) * 100}%` : "0%" 
+                      bottom: isAnimating ? `${(traditionalTotalFeePercentage / 100) * 100}%` : "0%" 
                     }}
                     transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
                   >
                     <div className="absolute -top-7 right-2">
                       <motion.span 
-                        className="text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1 rounded-full shadow-sm"
                         animate={{
                           scale: [1, 1.05, 1],
                           boxShadow: [
@@ -364,32 +489,45 @@ export function EnhancedVisualizations() {
                           repeatDelay: 1 
                         }}
                       >
-                        ${traditionalFinalAmount}
+                        ${traditionalFinalAmount.toFixed(2)}
                       </motion.span>
                     </div>
                   </motion.div>
                 </div>
                 
-                <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-                  <p>Recipient gets</p>
-                  <p className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                    ${traditionalFinalAmount}
-                  </p>
-                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">
-                    After 3-5 business days
-                  </p>
+                <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Recipient gets</p>
+                    <p className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                      ${traditionalFinalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center text-red-500 dark:text-red-400">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span className="text-sm font-medium">3-5 business days</span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Slow processing time
+                    </p>
+                  </div>
                 </div>
               </div>
               
               {/* FusionPay Transfer */}
               <div className="space-y-4 bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 transition-all hover:shadow-xl">
-                <h4 className="text-lg font-medium text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
-                  <Zap className="mr-2 h-5 w-5 text-blue-500 dark:text-blue-400" />
-                  FusionPay
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-medium text-blue-600 dark:text-blue-400 flex items-center">
+                    <Zap className="mr-2 h-5 w-5 text-blue-500 dark:text-blue-400" />
+                    FusionPay
+                  </h4>
+                  <div className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
+                    <span>Only {fusionPayFeePercentage}% Fee</span>
+                  </div>
+                </div>
                 
                 <div 
-                  className="relative h-64 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden"
+                  className="relative h-72 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden shadow-inner"
                   onMouseEnter={() => setHoverInfo({
                     title: "FusionPay Fees",
                     content: `FusionPay charges only ${fusionPayFeePercentage}% for international transfers with no hidden fees and real-time exchange rates.`
@@ -400,7 +538,7 @@ export function EnhancedVisualizations() {
                   <div className="absolute inset-x-0 bottom-0 bg-slate-300 dark:bg-slate-600 h-full w-full">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-lg font-bold text-slate-500 dark:text-slate-400">
-                        $1000
+                        ${transferAmount.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -414,11 +552,9 @@ export function EnhancedVisualizations() {
                     }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-medium text-white">
-                        Fee: ${fusionPayFeeAmount}
-                        <br />
-                        ({fusionPayFeePercentage}%)
+                    <div className="absolute top-2 left-0 right-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-white bg-blue-600 dark:bg-blue-700 px-3 py-1 rounded-full">
+                        Total Fee: ${fusionPayFeeAmount.toFixed(2)}
                       </span>
                     </div>
                   </motion.div>
@@ -434,7 +570,7 @@ export function EnhancedVisualizations() {
                   >
                     <div className="absolute -top-7 right-2">
                       <motion.span 
-                        className="text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1 rounded-full shadow-sm"
                         animate={{
                           scale: [1, 1.05, 1],
                           boxShadow: [
@@ -449,22 +585,197 @@ export function EnhancedVisualizations() {
                           repeatDelay: 1 
                         }}
                       >
-                        ${fusionPayFinalAmount}
+                        ${fusionPayFinalAmount.toFixed(2)}
                       </motion.span>
+                    </div>
+                  </motion.div>
+                  
+                  {/* Savings comparison */}
+                  <motion.div 
+                    className="absolute top-12 left-0 right-0 flex justify-center"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ 
+                      opacity: isAnimating ? 1 : 0, 
+                      y: isAnimating ? 0 : -10 
+                    }}
+                    transition={{ duration: 0.5, delay: 1.5 }}
+                  >
+                    <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      Save ${savingsAmount.toFixed(2)} ({savingsPercentage.toFixed(1)}%)
                     </div>
                   </motion.div>
                 </div>
                 
-                <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-                  <p>Recipient gets</p>
-                  <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    ${fusionPayFinalAmount}
-                  </p>
-                  <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">
-                    In under 5 minutes
-                  </p>
+                <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Recipient gets</p>
+                    <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                      ${fusionPayFinalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center text-green-500 dark:text-green-400">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span className="text-sm font-medium">Under 5 minutes</span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Instant processing
+                    </p>
+                  </div>
                 </div>
+                
               </div>
+              
+              {/* Direct Comparison Section */}
+              <motion.div 
+                className="md:col-span-2 mt-4 bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 transition-all hover:shadow-xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ 
+                  opacity: isAnimating ? 1 : 0, 
+                  y: isAnimating ? 0 : 20 
+                }}
+                transition={{ duration: 0.5, delay: 1 }}
+              >
+                <h4 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4 flex items-center">
+                  <PieChart className="mr-2 h-5 w-5 text-blue-500" />
+                  Direct Comparison
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Traditional Bank Column */}
+                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="font-medium text-slate-700 dark:text-slate-300 flex items-center">
+                        <Building className="mr-2 h-4 w-4 text-red-500" />
+                        Traditional Bank
+                      </h5>
+                      <span className="text-xs font-medium text-red-500 dark:text-red-400">{traditionalTotalFeePercentage}% Fee</span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Base Fee:</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">${traditionalBaseFeeAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">FX Markup:</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">${traditionalFxMarkupAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Wire Fee:</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">${traditionalWireFeeAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="border-t border-slate-200 dark:border-slate-600 pt-2 mt-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Fees:</span>
+                          <span className="text-sm font-bold text-red-500 dark:text-red-400">${traditionalTotalFeeAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Recipient Gets:</span>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">${traditionalFinalAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Time:</span>
+                        <span className="text-sm font-medium text-red-500 dark:text-red-400">3-5 days</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Comparison Column */}
+                  <div className="bg-gradient-to-b from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg p-4 flex flex-col justify-center items-center">
+                    <h5 className="font-medium text-slate-700 dark:text-slate-300 mb-4">Your Savings</h5>
+                    
+                    <div className="w-full max-w-[180px] aspect-square rounded-full bg-white dark:bg-slate-800 shadow-lg flex flex-col items-center justify-center p-4 mb-4">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">You Save</span>
+                      <span className="text-3xl font-bold text-green-500 dark:text-green-400">${savingsAmount.toFixed(2)}</span>
+                      <span className="text-sm font-medium text-green-600 dark:text-green-500">{savingsPercentage.toFixed(1)}%</span>
+                    </div>
+                    
+                    <div className="space-y-2 w-full">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Fee Savings:</span>
+                        <span className="text-sm font-medium text-green-500 dark:text-green-400">${savingsAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Time Savings:</span>
+                        <span className="text-sm font-medium text-green-500 dark:text-green-400">~4 days</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* FusionPay Column */}
+                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="font-medium text-slate-700 dark:text-slate-300 flex items-center">
+                        <Zap className="mr-2 h-4 w-4 text-blue-500" />
+                        FusionPay
+                      </h5>
+                      <span className="text-xs font-medium text-blue-500 dark:text-blue-400">{fusionPayFeePercentage}% Fee</span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Transparent Fee:</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">${fusionPayFeeAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">FX Markup:</span>
+                        <span className="text-sm font-medium text-green-500 dark:text-green-400">$0.00</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Wire Fee:</span>
+                        <span className="text-sm font-medium text-green-500 dark:text-green-400">$0.00</span>
+                      </div>
+                      <div className="border-t border-slate-200 dark:border-slate-600 pt-2 mt-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Fees:</span>
+                          <span className="text-sm font-bold text-blue-500 dark:text-blue-400">${fusionPayFeeAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Recipient Gets:</span>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">${fusionPayFinalAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">Time:</span>
+                        <span className="text-sm font-medium text-green-500 dark:text-green-400">&lt; 5 minutes</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Savings callout */}
+              <motion.div 
+                className="md:col-span-2 mt-4 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-xl p-6 shadow-lg border border-blue-100 dark:border-blue-900/30"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ 
+                  opacity: isAnimating ? 1 : 0, 
+                  y: isAnimating ? 0 : 20 
+                }}
+                transition={{ duration: 0.5, delay: 1.5 }}
+              >
+                <div className="flex flex-col md:flex-row items-center justify-between">
+                  <div className="flex items-center mb-4 md:mb-0">
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-full mr-4 shadow-md">
+                      <DollarSign className="h-8 w-8 text-green-500 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-slate-900 dark:text-white">Save on Every Transfer</h4>
+                      <p className="text-slate-600 dark:text-slate-400">FusionPay saves you money on international transfers</p>
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 px-6 py-3 rounded-lg shadow-md">
+                    <div className="text-center">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Average Savings</p>
+                      <p className="text-3xl font-bold text-green-500 dark:text-green-400">${savingsAmount.toFixed(2)}</p>
+                      <p className="text-xs text-green-600 dark:text-green-500">{savingsPercentage.toFixed(1)}% cheaper than banks</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
               
               {/* Savings callout */}
               <motion.div 
@@ -1212,6 +1523,30 @@ export function EnhancedVisualizations() {
                   </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+          
+          {/* Global Transaction Map */}
+          {activeTab === 'map' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <GlobalTransactionMap />
+            </motion.div>
+          )}
+          
+          {/* Currency Conversion Simulator */}
+          {activeTab === 'currency' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <CurrencyConversionSimulator />
             </motion.div>
           )}
         </div>
