@@ -49,8 +49,16 @@ export const registerUserOnChain = async (fusionPayId: string, userWalletAddress
     await tx.wait();
     console.log(`User ${fusionPayId} with wallet ${checksumAddress} registered on-chain. Tx hash: ${tx.hash}`);
     return { success: true, transactionHash: tx.hash };
-  } catch (error) {
-    console.error('Error registering user on-chain:', error);
+  } catch (error: any) {
+    console.error('Error registering user on-chain:');
+    console.error('  Message:', error.message);
+    if (error.code) console.error('  Code:', error.code);
+    if (error.reason) console.error('  Reason (Revert Message):', error.reason);
+    if (error.data) console.error('  Data:', error.data);
+    if (error.transaction) console.error('  Transaction:', error.transaction);
+    if (error.receipt) console.error('  Receipt:', error.receipt);
+    // Log the full error object for deeper inspection if needed, but be mindful of verbosity
+    // console.error('  Full Error Object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     return { success: false, error };
   }
 };

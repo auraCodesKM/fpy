@@ -26,10 +26,15 @@ export async function POST(request: Request) {
     if (userDoc.exists && userDoc.data()?.blockchainAddress) {
       userBlockchainAddress = userDoc.data()?.blockchainAddress;
       console.log(`[API /register-user] Found existing blockchainAddress: ${userBlockchainAddress} for UID: ${uid}`);
-      // If user is already onChainRegistered, we might choose to exit early or inform them.
-      // For now, we proceed to allow re-triggering registration for robustness.
+      
       if (userDoc.data()?.onChainRegistered) {
-        console.log(`[API /register-user] User ${uid} already marked as onChainRegistered. Proceeding with registration attempt anyway.`);
+        console.log(`[API /register-user] User ${uid} is already marked as onChainRegistered.`);
+        return NextResponse.json({
+          message: 'User is already registered and verified on-chain.',
+          blockchainAddress: userBlockchainAddress,
+          fusionPayId: userDoc.data()?.fusionPayId || fusionPayId, // send back fusionPayId
+          alreadyRegistered: true // Add a flag for the frontend
+        }, { status: 200 });
       }
     } else {
       console.log('[API /register-user] No existing blockchainAddress found or user document does not exist. Generating new Ethereum wallet...');
@@ -46,6 +51,35 @@ export async function POST(request: Request) {
     if (!registrationResult.success) {
       console.error('[API /register-user] Blockchain registration failed:', registrationResult.error);
       // Update Firestore with failure status if needed
+      // Check if the error indicates the user is already registered - this shouldn't happen if the above check works,
+      // but as a safeguard, we can prevent overwriting onChainRegistered to false.
+      const isAlreadyRegisteredError = registrationResult.error && 
+                                       typeof registrationResult.error === 'object' && 
+                                       'reason' in registrationResult.error && 
+                                       typeof registrationResult.error.reason === 'string' &&
+                                       registrationResult.error.reason.includes('User ID already registered');
+
+      if (isAlreadyRegisteredError) {
+        // This case should ideally be caught by the check at the beginning.
+        // If somehow reached, implies user was registered on-chain but not in Firestore.
+        // We should then update Firestore to reflect the on-chain status.
+        console.warn('[API /register-user] Blockchain reported user already registered, but Firestore did not reflect this. Updating Firestore.');
+        await userDocRef.set({
+          blockchainAddress: userBlockchainAddress, // We have this from earlier attempt
+          fusionPayId: fusionPayId,
+          onChainRegistered: true,
+          onChainRegisteredAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+          onChainRegistrationAttemptFailed: firebaseAdmin.firestore.FieldValue.delete(),
+          lastOnChainRegistrationError: firebaseAdmin.firestore.FieldValue.delete(),
+        }, { merge: true });
+        return NextResponse.json({
+          message: 'User was already registered on-chain. Firestore updated.',
+          blockchainAddress: userBlockchainAddress,
+          transactionHash: null, // No new transaction
+          alreadyRegistered: true
+        }, { status: 200 });
+      }
+
       await userDocRef.set({
         onChainRegistrationAttemptFailed: true,
         lastOnChainRegistrationError: registrationResult.error ? JSON.parse(JSON.stringify(registrationResult.error, Object.getOwnPropertyNames(registrationResult.error))) : 'Unknown error',

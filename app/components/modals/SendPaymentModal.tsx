@@ -7,12 +7,18 @@ interface SendPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserData | null;
+  initialCurrencyFrom?: 'USD' | 'INR' | 'EUR';
 }
 
-const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose, currentUser }) => {
+const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  currentUser, 
+  initialCurrencyFrom = 'USD'
+}) => {
   const [recipientFusionPayId, setRecipientFusionPayId] = useState('');
   const [amount, setAmount] = useState('');
-  const [currencyFrom, setCurrencyFrom] = useState('USD'); // Default or from user balance
+  const [currencyFrom, setCurrencyFrom] = useState(initialCurrencyFrom);
   const [currencyTo, setCurrencyTo] = useState('USD');   // Default
   
   const [isLoading, setIsLoading] = useState(false);
@@ -20,17 +26,17 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose, cu
   const [successResult, setSuccessResult] = useState<{ txId: string; transactionHash: string } | null>(null);
 
   useEffect(() => {
-    // Reset form when modal opens or currentUser changes
+    // Reset form when modal opens or currentUser/initialCurrencyFrom changes
     if (isOpen) {
       setRecipientFusionPayId('');
       setAmount('');
-      setCurrencyFrom('USD'); 
-      setCurrencyTo('USD');
+      setCurrencyFrom(initialCurrencyFrom);
+      setCurrencyTo('USD'); 
       setError(null);
       setSuccessResult(null);
       setIsLoading(false);
     }
-  }, [isOpen, currentUser]);
+  }, [isOpen, currentUser, initialCurrencyFrom]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +171,7 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose, cu
                     <select 
                       id="currencyFrom" 
                       value={currencyFrom}
-                      onChange={(e) => setCurrencyFrom(e.target.value)}
+                      onChange={(e) => setCurrencyFrom(e.target.value as 'USD' | 'INR' | 'EUR')}
                       className={inputStyle}
                     >
                       <option value="USD">USD</option>

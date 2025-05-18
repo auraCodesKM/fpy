@@ -6,7 +6,7 @@ interface AddMoneyModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (amount: number, currency: 'USD' | 'INR' | 'EUR') => void;
-  defaultCurrency?: 'USD' | 'INR' | 'EUR';
+  initialCurrency?: 'USD' | 'INR' | 'EUR';
   glassmorphicCardStyle: string;
   commonHoverTapProps: object;
 }
@@ -15,21 +15,21 @@ const AddMoneyModal: React.FC<AddMoneyModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  defaultCurrency = 'INR',
+  initialCurrency = 'INR',
   glassmorphicCardStyle,
   commonHoverTapProps
 }) => {
   const [amount, setAmount] = useState<string>('');
-  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'INR' | 'EUR'>(defaultCurrency);
+  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'INR' | 'EUR'>(initialCurrency);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (isOpen) {
       setAmount('');
-      setSelectedCurrency(defaultCurrency);
+      setSelectedCurrency(initialCurrency);
       setError('');
     }
-  }, [isOpen, defaultCurrency]);
+  }, [isOpen, initialCurrency]);
 
   const handleSubmit = () => {
     const numericAmount = parseFloat(amount);

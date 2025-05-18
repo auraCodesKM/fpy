@@ -31,4 +31,6 @@ export interface UserData {
   recentTransactions: Transaction[];
   createdAt?: Date | null; // Assuming we convert Firestore Timestamp to Date
   lastLoginAt?: Date | null; // Assuming we convert Firestore Timestamp to Date
+  walletAddress?: string | null;      // Added for on-chain identity
+  isRegisteredOnChain?: boolean; // Added for on-chain identity status
 }
