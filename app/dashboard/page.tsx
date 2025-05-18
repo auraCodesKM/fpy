@@ -14,6 +14,7 @@ import Image from 'next/image';
 import LoadingSpinner from '@/app/components/LoadingSpinner'; 
 import AddMoneyModal from '@/app/components/AddMoneyModal'; 
 import SendPaymentModal from '@/app/components/modals/SendPaymentModal'; 
+import { FusionPayLogo } from '@/components/fusion-pay-logo';
 
 const glassmorphicCardStyle = "bg-indigo-950/25 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-indigo-700/40";
 const buttonStyle = "bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all duration-200 ease-in-out flex items-center justify-center text-base";
@@ -487,7 +488,9 @@ const Sidebar: React.FC<any> = ({ currentView, setCurrentView, user, onLogout })
   return (
     <aside className="w-full md:w-72 bg-slate-950/50 backdrop-blur-xl p-6 flex flex-col sticky top-0 h-screen shadow-2xl border-r border-indigo-800/30">
       <div className="flex items-center mb-10">
-        <Image src="/fusionpay_logo_v_transparent.png" alt="FusionPay Logo" width={40} height={40} className="mr-3 rounded-full shadow-lg"/>
+        <div className="mr-3">
+          <FusionPayLogo size="small" />
+        </div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 text-transparent bg-clip-text">FusionPay</h1>
       </div>
 
