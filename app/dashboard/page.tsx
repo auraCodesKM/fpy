@@ -8,6 +8,7 @@ import { UserData, Transaction } from '../../types';
 import { HomeIcon, WalletIcon, ArrowsRightLeftIcon, Cog6ToothIcon, ArrowLeftOnRectangleIcon, UserCircleIcon, Bars3Icon, XMarkIcon, PresentationChartBarIcon, BanknotesIcon, ArrowUpCircleIcon, ArrowDownCircleIcon, CalendarDaysIcon, InformationCircleIcon, PaperAirplaneIcon, PlusCircleIcon, ArrowDownTrayIcon, BoltIcon, CreditCardIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import AddMoneyModal from '../components/AddMoneyModal';
+import SendPaymentModal from '../components/modals/SendPaymentModal'; // Corrected import path
 import { initializeRazorpayPayment, createTransactionRecord } from '../../lib/razorpay';
 import { addFundsToWallet } from '../../lib/walletService';
 import { toast, Toaster } from 'react-hot-toast';
@@ -26,7 +27,7 @@ const DashboardPage: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [currentView, setCurrentView] = useState<ViewName>('dashboard');
   const [isAddMoneyModalOpen, setIsAddMoneyModalOpen] = useState(false);
-  // Add selectedCurrencyForAddMoney later if needed to pre-fill modal based on context
+  const [isSendPaymentModalOpen, setIsSendPaymentModalOpen] = useState(false); // Added state for modal
 
   const handleAddMoneySubmit = async (amount: number, currency: 'USD' | 'INR' | 'EUR') => {
     console.log('Add Money Submitted:', { amount, currency });
@@ -325,7 +326,7 @@ const DashboardPage: React.FC = () => {
           <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400">Quick Actions</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <motion.button {...commonHoverTapProps} className={actionButtonClass} onClick={() => alert('Send Payment clicked - placeholder') }>
+          <motion.button {...commonHoverTapProps} className={actionButtonClass} onClick={() => setIsSendPaymentModalOpen(true)}> // Updated to open modal
             <PaperAirplaneIcon className={iconClass} />
             <span className="text-sm font-medium text-center">Send Payment</span>
           </motion.button>
@@ -386,7 +387,149 @@ const DashboardPage: React.FC = () => {
     );
   };
 
+  const SettingsView: React.FC<{ user: UserData }> = ({ user }) => {
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [updateMessage, setUpdateMessage] = useState('');
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+    const [isRegisteringOnChain, setIsRegisteringOnChain] = useState(false);
+    const [registrationStatus, setRegistrationStatus] = useState('');
+
+    const handlePasswordUpdate = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setUpdateMessage('');
+      if (newPassword !== confirmNewPassword) {
+        setUpdateMessage('New passwords do not match.');
+        return;
+      }
+      if (!firebaseUser) {
+        setUpdateMessage('User not authenticated.');
+        return;
+      }
+      setIsUpdatingPassword(true);
+      try {
+        // Re-authenticate is often needed for sensitive operations like password change
+        // This example assumes you have a way to get current credentials or handle re-auth
+        // For simplicity, directly calling updatePassword. In a real app, re-auth first.
+        // const credential = firebase.auth.EmailAuthProvider.credential(firebaseUser.email!, currentPassword);
+        // await firebaseUser.reauthenticateWithCredential(credential);
+        // await firebaseUser.updatePassword(newPassword);
+        setUpdateMessage('Password update functionality is not fully implemented in this mock.');
+        // For now, just simulate a delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error: any) {
+        setUpdateMessage(`Error: ${error.message}`);
+      } finally {
+        setIsUpdatingPassword(false);
+      }
+    };
+
+    const handleRegisterOnChain = async () => {
+      if (!user || !user.uid || !user.fusionPayId) {
+        setRegistrationStatus('Error: User data or FusionPay ID is missing.');
+        return;
+      }
+      setIsRegisteringOnChain(true);
+      setRegistrationStatus('Processing registration...');
+      try {
+        const response = await fetch('/api/register-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid, fusionPayId: user.fusionPayId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.details || data.error || 'On-chain registration failed.');
+        }
+        setRegistrationStatus(`Successfully registered/verified! Address: ${data.blockchainAddress}, Tx: ${data.transactionHash}`);
+        // Optionally, trigger a refresh of user data if 'onChainRegistered' flag is added to useAuth
+      } catch (error: any) {
+        setRegistrationStatus(`Error: ${error.message}`);
+      } finally {
+        setIsRegisteringOnChain(false);
+      }
+    };
+
+    const UserProfileCard: React.FC<{ user: UserData }> = ({ user }) => (
+      <div className={`${glassmorphicCardStyle} mb-8`}>
+        <h3 className="text-xl font-semibold text-sky-300 mb-4">User Profile</h3>
+        <div className="space-y-2 text-slate-300">
+          <p><strong>Name:</strong> {user.displayName || 'N/A'}</p>
+          <p><strong>Email:</strong> {user.email || 'N/A'}</p>
+          <p><strong>FusionPay ID:</strong> {user.fusionPayId || 'N/A'}</p>
+          <p><strong>Blockchain Address:</strong> {user.blockchainAddress || 'Not yet registered'}</p>
+          {/* Add onChainRegistered status display once available in UserData */}
+          {/* <p><strong>On-Chain Status:</strong> {user.onChainRegistered ? 'Registered' : 'Not Registered'}</p> */}
+        </div>
+        <div className="mt-6">
+          <button
+            onClick={handleRegisterOnChain}
+            disabled={isRegisteringOnChain}
+            className="w-full bg-teal-500 hover:bg-teal-600 disabled:bg-teal-800/50 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-102 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 text-base mb-2"
+          >
+            {isRegisteringOnChain ? 'Registering...' : 'Register / Verify On-Chain Identity'}
+          </button>
+          {registrationStatus && (
+            <p className={`mt-2 text-sm ${registrationStatus.startsWith('Error:') ? 'text-red-400' : 'text-green-400'}`}>
+              {registrationStatus}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="space-y-6">
+        <UserProfileCard user={user} />
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-semibold text-sky-300 tracking-tight">Change Password</h3>
+        </div>
+        <form onSubmit={handlePasswordUpdate} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-300">Current Password:</label>
+            <input 
+              type="password" 
+              value={currentPassword} 
+              onChange={(e) => setCurrentPassword(e.target.value)} 
+              className="w-full p-3 bg-slate-700/50 rounded-lg border border-slate-600/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-300">New Password:</label>
+            <input 
+              type="password" 
+              value={newPassword} 
+              onChange={(e) => setNewPassword(e.target.value)} 
+              className="w-full p-3 bg-slate-700/50 rounded-lg border border-slate-600/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-300">Confirm New Password:</label>
+            <input 
+              type="password" 
+              value={confirmNewPassword} 
+              onChange={(e) => setConfirmNewPassword(e.target.value)} 
+              className="w-full p-3 bg-slate-700/50 rounded-lg border border-slate-600/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
+            />
+          </div>
+          <motion.button 
+            type="submit"
+            disabled={isUpdatingPassword}
+            className="w-full bg-sky-500 hover:bg-sky-600 disabled:bg-sky-800/50 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-102 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75 text-base"
+          >
+            {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+          </motion.button>
+          {updateMessage && (
+            <p className={`mt-2 text-sm ${updateMessage.startsWith('Error:') ? 'text-red-400' : 'text-green-400'}`}>
+              {updateMessage}
+            </p>
+          )}
+        </form>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -406,6 +549,11 @@ const DashboardPage: React.FC = () => {
         onSubmit={handleAddMoneySubmit} 
         commonHoverTapProps={commonHoverTapProps}
         glassmorphicCardStyle={glassmorphicCardStyle} />
+      <SendPaymentModal 
+        isOpen={isSendPaymentModalOpen}
+        onClose={() => setIsSendPaymentModalOpen(false)}
+        currentUser={user}
+      />
       <Toaster 
         position="top-right" 
         toastOptions={{
@@ -572,10 +720,7 @@ const DashboardPage: React.FC = () => {
                     </div>
                   )}
                   {currentView === 'settings' && (
-                    <div>
-                      <h3 className="text-2xl font-semibold text-purple-300 mb-4">Account Settings</h3>
-                      <AnimatedSkeletonCard key="settings-skeleton" />
-                    </div>
+                    <SettingsView user={user} />
                   )}
                 </motion.div>
               </AnimatePresence>

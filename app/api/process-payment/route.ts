@@ -14,7 +14,6 @@ interface ProcessPaymentRequestBody {
   currencyFrom: string;
   currencyTo: string;
   exchangeRate: number | string; // Expected as a scaled integer
-  feeAmount: number | string;    // Expected in smallest unit
 }
 
 export async function POST(request: Request) {
@@ -31,10 +30,9 @@ export async function POST(request: Request) {
       currencyFrom,
       currencyTo,
       exchangeRate, // Expected as a scaled integer (e.g., 1.08 USD/EUR as 10800 if scaled by 10000)
-      feeAmount     // Expected in smallest unit (e.g., cents)
     } = paymentDetails;
 
-    if (!senderUid || !senderFusionPayId || !recipientFusionPayId || amountToSend === undefined || !currencyFrom || !currencyTo || exchangeRate === undefined || feeAmount === undefined) {
+    if (!senderUid || !senderFusionPayId || !recipientFusionPayId || amountToSend === undefined || !currencyFrom || !currencyTo || exchangeRate === undefined) {
       return NextResponse.json({ error: 'Missing required payment details' }, { status: 400 });
     }
 
@@ -51,7 +49,6 @@ export async function POST(request: Request) {
       currencyFrom,
       currencyTo,
       exchangeRate: exchangeRate.toString(),
-      feeAmount: feeAmount.toString(),
       status: 'pending_onchain',
       createdAt: now,
       updatedAt: now,
@@ -112,12 +109,11 @@ export async function POST(request: Request) {
       }
 
       const amountToSendBigInt = BigInt(amountToSend);
-      const feeAmountBigInt = BigInt(feeAmount);
       const exchangeRateBigInt = BigInt(exchangeRate);
 
       // Update sender's balance
       const senderCurrentBalance = BigInt(senderDoc.data()?.[`balances`]?.[currencyFrom] || 0);
-      const newSenderBalance = senderCurrentBalance - amountToSendBigInt - feeAmountBigInt;
+      const newSenderBalance = senderCurrentBalance - amountToSendBigInt;
       t.update(senderDocRef, {
         [`balances.${currencyFrom}`]: newSenderBalance.toString(), // Store as string for precision
         updatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
